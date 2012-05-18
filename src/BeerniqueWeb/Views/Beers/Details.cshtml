@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = @ViewData.Model["name"].ReadAs("");
+}
+
+<div class="vproduct" data-last-updated="@ViewData.Model["updated"].ReadAs("")">
+  <h1 class="fn">@ViewData.Model["name"].ReadAs("")</h1>
+  <h4 class="brand">by @Html.ActionLink(ViewData.Model["brewery"].ReadAs("") as string, "Details",
+                                        "Breweries", new { id = @ViewData.Model["brewery_url"].ReadAs("") as string }, new { })</h4>
+  <ul class="categories">
+    <li>@ViewData.Model["category"].ReadAs("")</li>
+    <li>@ViewData.Model["style"].ReadAs("")</li>
+  </ul>
+  <div class="description">@ViewData.Model["description"].ReadAs("")</div>
+  <ul class="attribs">
+    @if (@ViewData.Model["abv"] != null) {
+        <li class="abv"><abbr title="alcohol by volume">ABV</abbr>: @ViewData.Model["abv"].ReadAs("")</li>
+    }
+  </ul>
+</div>

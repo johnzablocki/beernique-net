@@ -1,0 +1,178 @@
+@if (ViewBag.OnIndex == null)
+{
+    ViewBag.OnIndex = false;
+};
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>@ViewBag.Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Couchbase Server 2.0 Sample Application built on data from OpenBeerDB.com">
+    <meta name="author" content="Benjamin Young <benjamin@couchbase.com> - http://twitter.com/bigbluehat">
+
+    <!-- Le styles -->
+    <link href="@Url.Content("~/content/assets/css/bootstrap.css")" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    <link href="@Url.Content("~/content/assets/css/bootstrap-responsive.css")" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js")"></script>
+<![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="@Url.Content("~/content/assets/ico/favicon.ico")">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="@Url.Content("~/content/assets/ico/apple-touch-icon-144-precomposed.png")">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="@Url.Content("~/content/assets/ico/apple-touch-icon-114-precomposed.png")">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="@Url.Content("~/content/assets/ico/apple-touch-icon-72-precomposed.png")">
+    <link rel="apple-touch-icon-precomposed" href="@Url.Content("~/content/assets/ico/apple-touch-icon-57-precomposed.png")">
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="@Url.Action("Index", "Home")" /></a>
+          @if (! ViewBag.OnIndex)
+          { 
+          using (Html.BeginForm("Details", "Controller", FormMethod.Post, new { @class = "navbar-search pull-left" }))
+          {
+              @Html.ActionLink("Home", "Index", "Home")
+              <input type="search" placeholder="Whatcha drinkin'?" class="search-query span2" name="id">
+          }
+          }          
+          <ul class="nav pull-right">
+            <li>
+              <a href="#" id="login" title="Sign-in with BrowserID">
+                <img src="@Url.Content("~/content/assets/ico/sign_in_blue.png")" alt="Sign in">
+              </a>
+              <a href="#" id="logout" style="display:none">
+                Hi yeah, <span id="whoami">??</span>
+                Wanna logout?
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      @RenderBody()
+      @if (ViewBag.OnIndex) {
+          if (ViewBag.HasBeers) { 
+      <div class="row">
+        <div class="span4">
+          <h3>You've been drinking..'.</h3>
+          <ul>
+          @foreach (var beer in ViewBag.Beers)
+          {
+            <li><a href="@beer["beer_url"].ReadAs("")">@beer["name"].ReadAs("")</a> <span class="badge">@beer["drank_times"].ReadAs("")</span></li>  
+          }                      
+          </ul>
+        </div>
+
+        <div class="span4">
+          <h3>You mostly drink...</h3>
+          <p>@ViewBag.MostlyDrink</p>
+        </div>
+
+        <div class="span4">
+          <h3>You seem to have a thing for...</h3>
+          <p>@ViewBag.MostlyBy</p>
+        </div>
+      </div>
+          }
+      }
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="@Url.Content("~/content/assets/js/jquery.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-transition.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-alert.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-modal.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-dropdown.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-scrollspy.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-tab.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-tooltip.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-popover.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-button.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-collapse.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-carousel.js")"></script>
+    <script src="@Url.Content("~/content/assets/js/bootstrap-typeahead.js")"></script>
+
+    <script src="https://browserid.org/include.js" type="text/javascript"></script>
+    <script>
+        function loggedIn(res) {
+            $('#whoami').html(res);
+            $('#login').hide();
+            $('#logout').show();
+        }
+
+        function loggedOut() {
+            $('#login').show();
+            $('#logout').hide();
+        }
+
+        function gotVerifiedEmail(assertion) {
+            // got an assertion, now send it up to the server for verification
+            if (assertion !== null) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Content("~/browserid/login")',
+                    dataType: 'json',
+                    data: { assertion: assertion },
+                    success: function (res, status, xhr) {
+                        if (res === null || res.status === false) loggedOut();
+                        else loggedIn(res);
+                    },
+                    error: function (res, status, xhr) {
+                        console.log("login failure", res);
+                    }
+                });
+            } else {
+                loggedOut();
+            }
+        }
+
+        $(function () {
+            $.get('@Url.Content("~/browserid/whoami")', function (res) {
+                if (res === null) {
+                    // see if we are logged in by default
+                    if (navigator.id.get) {
+                        navigator.id.get(gotVerifiedEmail, { silent: true });
+                    } else {
+                        loggedOut();
+                    }
+                } else {
+                    loggedIn(res, true);
+                }
+            }, 'json');
+
+            $('#login').on('click', function () {
+                navigator.id.get(gotVerifiedEmail, { allowPersistent: true });
+                return false;
+            });
+
+            $('#logout').on('click', function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Content("~/browserid/logout")',
+                    success: function (res, status, xhr) {
+                        navigator.id.logout();
+                        loggedOut();
+                    }
+                });
+            });
+        });
+    </script>
+  </body>
+</html>

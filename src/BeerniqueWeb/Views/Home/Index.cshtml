@@ -1,0 +1,12 @@
+﻿@{
+    ViewBag.Title = "Beernique";
+}
+
+<header class="hero-unit">
+  <h1>@ViewBag.Title</h1>
+  <h3>Code Responsibly</h3>
+  @using (Html.BeginForm("Details", "Beers", FormMethod.Post, new { @class = "form-search", id = "get-beer" })) {  
+    <input type="search" name="id" placeholder="Whatcha drinkin'?"/>
+    <button class="btn" type="submit">Drink</button>
+  }
+</header>

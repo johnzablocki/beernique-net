@@ -1,0 +1,32 @@
+﻿@{ Func<string, string> read = (key) => @ViewData.Model[key].ReadAs("") as string; }
+@{ Func<string, bool> check = (key) => !string.IsNullOrEmpty(read(key)); }
+
+@{
+    ViewBag.Title = @read("name");
+}
+
+<div class="vcard" data-last-updated="@read("updated")">
+  <h1 class="org">@ViewData.Model["name"].ReadAs("")</h1>
+  @if (check("website")) { 
+    <a class="url" href="@read("website")">website</a>
+  }
+  <div class="adr">
+    @if (check("address")) { 
+    <div class="street-address">@read("address")</div>
+    }
+    <div>
+      <span class="locality">@read("city"),</span>
+      <span class="region">@read("state")</span>
+      <span class="postal-code">@read("code")</span>
+    </div>
+    <div class="country-name">@read("country")</div>
+    @if (check("geo")) { 
+    <div class="geo" data-accuracy="{{accuracy}}">
+      <span class="latitude">{{latitude}}</span>,
+      <span class="longitude">{{longitude}}</span>
+    </div>
+    }
+  </div>
+  <div class="tel"><a href="tel:@read("phone")">@read("phone")</a></div>
+  <div class="note"></div>
+</div>
